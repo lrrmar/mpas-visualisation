@@ -21,9 +21,11 @@ def get_color(val):
 
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1, projection=cartopy.crs.PlateCarree())
-extent = [3, 180, -90, 90]
+extent = [90, 130, -25, 20] # x0, x1, y0, y1
 ax.set_extent(extent, crs=cartopy.crs.PlateCarree())
+
 ax = plot_mpas(ax, grid, var, alpha=1, color=get_color)
+
 fig.colorbar(cm.ScalarMappable(norm=norm, cmap=colormap), ax=ax)
 
 
