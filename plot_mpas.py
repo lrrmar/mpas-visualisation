@@ -39,18 +39,27 @@ def plot_mpas(ax, grid, field, **kwargs):
     for key in callable_keys:
         del kwargs[key]
 
-    print(os.cpu_count())
+    # Get array of values index at internal_cell
+    values = field[internal_cells]
+
+    # add a null value indicator (padding) at end of latVertex and lonVertex
+    paddedLatVertex = np.append(latVertex, [-999999])
+    paddedLonVertex = np.append(lonVertex, [-999999])
+
+    vertices = verticesOnCell[internal_cells] - 1
+    lats = np.array([paddedLatVertex[cell] for cell in vertices])
+    lons = np.array([paddedLonVertex[cell] for cell in vertices])
 
     # Create polygon for each internal cell
-    for cell in internal_cells:
-        vertices = np.trim_zeros(verticesOnCell[cell]) - 1
-        lats = latVertex[vertices]
-        lons = lonVertex[vertices]
+    for i in range(len(vertices)):
+        la= lats[i][lats[i] != -999999]
+        lo= lons[i][lons[i] != -999999]
+
         called_kwargs = {}
         for key in callable_kwargs:
-            called_kwargs[key] = callable_kwargs[key](field[cell])
-        if abs(lons.max() - lons.min()) < 100:
-            coords = np.array([lons, lats]).T
+            called_kwargs[key] = callable_kwargs[key](values[i])
+        if abs(lo.max() - lo.min()) < 100:
+            coords = np.array([lo, la]).T
             polygon = Polygon(
                 coords,
                 **kwargs,
