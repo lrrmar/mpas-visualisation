@@ -1,39 +1,25 @@
-import cartopy
-import matplotlib.pyplot as plt
-from matplotlib import cm
+from plot_mpas import PlottingSession
 from matplotlib.colors import Normalize,ListedColormap
+from matplotlib import cm
 from netCDF4 import Dataset
 import numpy as np
-
-from plot_mpas import plot_mpas
-
-grid = Dataset('x1.10242.init.nc')
+import matplotlib.pyplot as plt
+import cartopy
 data = Dataset('diag.2014-09-10_00.00.00.nc')
 var = np.array(data.variables['t2m'][:][0])
 
-
+session = PlottingSession()
 vmin, vmax = var.min(), var.max()
 norm = Normalize(vmin=vmin, vmax=vmax)
 colormap = cm.viridis
 def get_color(val):
     return colormap(norm(val))
 
-
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1, projection=cartopy.crs.PlateCarree())
 extent = [-180, 180, -90, 90] # x0, x1, y0, y1
 ax.set_extent(extent, crs=cartopy.crs.PlateCarree())
 
-def alpha_function(val):
-    return norm(val)
-ax = plot_mpas(ax, grid, var, alpha=1, color=get_color)
-
-
-fig.colorbar(cm.ScalarMappable(norm=norm, cmap=colormap), ax=ax)
-
-ax.set_xlabel('longitude')
-ax.set_ylabel('latitude')
-
-
+ax = session.plot_to_ax(ax, var, color=get_color)
 ax.coastlines()
-plt.savefig('test.png')
+plt.show()
